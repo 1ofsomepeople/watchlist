@@ -36,16 +36,24 @@
 {% extends 'base.html' %}
 {% block content %}
 <p>{{ movies|length }} Titles</p>
+<form method="post">
+  Name <input type="text" name="title" autocomplete="off" required>
+  Year <input type="text" name="year" autocomplete="off" required>
+  <input type="submit" class="btn" name="submit" value="Add">
+</form>
 <ul class="movie-list">
   {% for movie in movies %}
   <li>{{ movie.title }} - {{ movie.year }}
     
     <!--!为什么设置的样式class不能使用,使用style却没问题-->
-    <span style='display: block; float: right;'>
-      <a style="font-size: 12px;font-weight: bold;color: black;text-decoration: none;background: #F5C518;border-radius: 5px;padding: 3px 5px;" 
-      href="https://www.imdb.com/find?q={{ movie.title }}" 
-      target="_blank" 
-      title="Find this movie on IMDb"> IMDb</a>
+    <!--可能是缓存问题，关闭页面再打开可能会解决问题，否则尝试使用Chrome浏览器-->
+    <span class="float-right">
+      
+      <a class="btn" href="{{ url_for('edit', movie_id=movie.id)}}" >Edit</a>
+      <form class="inline-form" method="post" action="{{ url_for('delete', movie_id=movie.id) }}">
+        <input class="btn" type="submit" name="delete" value="Delete" onclick="return confirm('Are you sure?')">
+      </form>
+      <a class="imdb" href="https://www.imdb.com/find?q={{ movie.title }}" target="_blank" title="Find this movie on IMDb">IMDb</a>
     </span>
   </li> 
   {% endfor %}
