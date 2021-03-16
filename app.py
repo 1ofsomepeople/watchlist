@@ -32,11 +32,11 @@ def initdb(drop):
   db.create_all()
   click.echo('Initialize the database.')#输出提示信息
 
-@app.route('/')
+@app.route('/')#主页视图函数
 def index():
-  user = User.query_first()#读取用户记录
-  movies = Movie.query_all()#读取所有电影记录
-  return render_template('index.html',user=user,movies=movies)
+  # user = User.query.first()#读取用户记录 由于使用了模板上下文函数，user变量可直接使用
+  movies = Movie.query.all()#读取所有电影记录
+  return render_template('index.html',movies=movies)
 
 @app.route('/user/<name>')
 def user_page(name):
@@ -74,3 +74,16 @@ def forge():
     db.session.add(movie)
   db.session.commit()
   click.echo('Done.')
+
+@app.errorhandler(404) #错误处理函数，传入要处理的错误代码
+def page_not_found(e):#接收异常对象作为参数
+  # user = User.query.first() #使用模板上下文函数，user变量可直接使用
+  return render_template('404.html'), 404 #返回状态和状态码
+
+'''模板上下文处理函数，这个函数返回的变量（以字典键值对的形式）
+将会统一注入到每一个模板的上下文环境中，因此可以直接在模板中使用。
+同样的，后面创建的任何一个模板，都可以在其中直接使用user变量。'''
+@app.context_processor
+def inject_user():#函数名自定义
+  user=User.query.first()
+  return dict(user=user)#需要返回字典，等同于 return {'user':user}
